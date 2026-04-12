@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROD OS — Centre de Commandement</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;border-bottom:1px solid #222}
+.logo{font-size:22px;font-weight:700;color:#FFD700;letter-spacing:2px}
+.domain{font-size:13px;color:#666}
+.status{display:flex;align-items:center;gap:8px;font-size:12px;color:#00ff88}
+.dot{width:8px;height:8px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
+.card{background:#111;border:1px solid #222;border-radius:16px;padding:48px;width:100%;max-width:420px;text-align:center}
+.avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#000;margin:0 auto 24px}
+h1{font-size:24px;font-weight:600;margin-bottom:8px}
+.subtitle{font-size:13px;color:#666;margin-bottom:32px}
+input{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:14px 16px;color:#fff;font-size:14px;margin-bottom:12px;outline:none;transition:border .2s}
+input:focus{border-color:#FFD700}
+input::placeholder{color:#444}
+button{width:100%;background:#FFD700;color:#000;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:8px}
+button:hover{opacity:.85}
+footer{padding:24px 40px;border-top:1px solid #222;text-align:center}
+.footer-text{font-size:12px;color:#444;margin-bottom:12px}
+.modules{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.module{font-size:11px;color:#555;padding:4px 12px;border:1px solid #222;border-radius:20px}
+.module:hover{color:#FFD700;border-color:#FFD700;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">ROD OS</div>
+  <div class="domain">rodcontrol.rodai.tech</div>
+  <div class="status"><div class="dot"></div>Système actif</div>
+</header>
+<main>
+  <div class="card">
+    <div class="avatar">ROD</div>
+    <h1>Centre de Commandement</h1>
+    <p class="subtitle">Polynésie Française — Papeete</p>
+    <input type="email" placeholder="Email">
+    <input type="password" placeholder="Mot de passe">
+    <button>Accéder au système</button>
+  </div>
+</main>
+<footer>
+  <p class="footer-text">ROD OS v1.0 — Système souverain personnel</p>
+  <div class="modules">
+    <span class="module">Finance</span>
+    <span class="module">Crypto</span>
+    <span class="module">Agriculture</span>
+    <span class="module">Apiculture</span>
+    <span class="module">Projets</span>
+    <span class="module">Agents IA</span>
+  </div>
+</footer>
+</body>
+</html>
