@@ -4,58 +4,634 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ROD OS — Centre de Commandement</title>
+<meta name="robots" content="noindex,nofollow">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;border-bottom:1px solid #222}
-.logo{font-size:22px;font-weight:700;color:#FFD700;letter-spacing:2px}
-.domain{font-size:13px;color:#666}
-.status{display:flex;align-items:center;gap:8px;font-size:12px;color:#00ff88}
-.dot{width:8px;height:8px;border-radius:50%;background:#00ff88;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
-.card{background:#111;border:1px solid #222;border-radius:16px;padding:48px;width:100%;max-width:420px;text-align:center}
-.avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#000;margin:0 auto 24px}
-h1{font-size:24px;font-weight:600;margin-bottom:8px}
-.subtitle{font-size:13px;color:#666;margin-bottom:32px}
-input{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:14px 16px;color:#fff;font-size:14px;margin-bottom:12px;outline:none;transition:border .2s}
-input:focus{border-color:#FFD700}
-input::placeholder{color:#444}
-button{width:100%;background:#FFD700;color:#000;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:8px}
-button:hover{opacity:.85}
-footer{padding:24px 40px;border-top:1px solid #222;text-align:center}
-.footer-text{font-size:12px;color:#444;margin-bottom:12px}
-.modules{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
-.module{font-size:11px;color:#555;padding:4px 12px;border:1px solid #222;border-radius:20px}
-.module:hover{color:#FFD700;border-color:#FFD700;cursor:pointer}
+:root{
+  --gold:#FFD700;--bg:#08080f;--bg2:#0f0f1a;--bg3:#161625;
+  --border:#1e1e32;--text:#e8e8f5;--muted:#5a5a78;
+  --green:#00e676;--blue:#4fc3f7;--red:#ff5252;--purple:#ce93d8;
+}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ═══ LOCK SCREEN ═══ */
+#lock{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.lock-logo{font-size:56px;font-weight:900;color:var(--gold);letter-spacing:8px;margin-bottom:6px;text-shadow:0 0 60px rgba(255,215,0,.2)}
+.lock-tagline{font-size:11px;color:var(--muted);letter-spacing:4px;margin-bottom:60px;text-transform:uppercase}
+.lock-card{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:48px 40px;width:100%;max-width:380px}
+.lock-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#ff8c00);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#000;margin:0 auto 20px;box-shadow:0 0 40px rgba(255,215,0,.2)}
+.lock-name{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px}
+.lock-loc{font-size:11px;color:var(--muted);text-align:center;letter-spacing:2px;margin-bottom:36px;text-transform:uppercase}
+.field{margin-bottom:14px}
+.field label{font-size:10px;color:var(--muted);display:block;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase}
+.field input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-size:14px;outline:none;transition:border .2s}
+.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.08)}
+.field input::placeholder{color:var(--muted)}
+.btn-access{width:100%;background:var(--gold);color:#000;border:none;border-radius:12px;padding:15px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .2s;margin-top:6px}
+.btn-access:hover{background:#ffec4d;transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,215,0,.2)}
+.btn-access:active{transform:translateY(0)}
+.lock-error{color:var(--red);font-size:12px;text-align:center;margin-top:12px;display:none}
+.lock-2fa{display:none;margin-top:16px}
+.lock-2fa-title{font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;letter-spacing:1px}
+.otp-row{display:flex;gap:8px;justify-content:center}
+.otp-input{width:44px;height:52px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:22px;font-weight:700;text-align:center;outline:none}
+.otp-input:focus{border-color:var(--gold)}
+.lock-modules{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:36px;max-width:380px}
+.lm{font-size:9px;padding:3px 9px;border:1px solid var(--border);border-radius:20px;color:var(--muted);letter-spacing:1px}
+
+/* ═══ APP ═══ */
+#app{display:none;min-height:100vh;flex-direction:column}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.tb-logo{font-size:18px;font-weight:900;color:var(--gold);letter-spacing:4px}
+.tb-center{display:flex;align-items:center;gap:20px}
+.tb-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green)}
+.tb-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-time{font-size:12px;color:var(--muted)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-notif{position:relative;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--bg3);border:1px solid var(--border);font-size:16px}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+.tb-user{display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:30px;padding:5px 14px 5px 5px}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ff8c00);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#000}
+.tb-uname{font-size:12px;font-weight:500}
+
+/* SIDEBAR */
+.layout{display:flex;flex:1}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;flex-shrink:0}
+@media(max-width:768px){.sidebar{display:none}}
+.nav-section{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;padding:10px 10px 4px;margin-top:6px}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.nav-btn:hover{background:var(--bg3);color:var(--text)}
+.nav-btn.active{background:var(--bg3);color:var(--gold);border:1px solid var(--border)}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.nav-badge{margin-left:auto;font-size:10px;background:var(--red);color:#fff;border-radius:10px;padding:1px 6px}
+
+/* MAIN */
+.main{flex:1;padding:28px;overflow-y:auto;max-width:1200px}
+
+/* PANELS */
+.panel{display:none}.panel.active{display:block}
+.page-title{font-size:26px;font-weight:700;margin-bottom:4px}
+.page-title span{color:var(--gold)}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+.badge{font-size:10px;padding:2px 8px;border-radius:10px}
+.badge-green{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.2)}
+.badge-gold{background:rgba(255,215,0,.12);color:var(--gold);border:1px solid rgba(255,215,0,.2)}
+.badge-blue{background:rgba(79,195,247,.12);color:var(--blue);border:1px solid rgba(79,195,247,.2)}
+.badge-red{background:rgba(255,82,82,.12);color:var(--red);border:1px solid rgba(255,82,82,.2)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.kpi-val{font-size:26px;font-weight:800;margin-bottom:3px}
+.kpi-sub{font-size:11px;color:var(--muted)}
+.kpi-up{color:var(--green)}
+.kpi-down{color:var(--red)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+
+/* LIST */
+.list{display:flex;flex-direction:column;gap:8px}
+.list-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg3);border-radius:10px;font-size:13px}
+.li-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.li-text{flex:1;line-height:1.4}
+.li-meta{font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* WALLET */
+.w-hero{background:var(--bg2);border:1px solid rgba(255,215,0,.3);border-radius:20px;padding:32px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden}
+.w-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,215,0,.04) 0%,transparent 70%);pointer-events:none}
+.w-label{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.w-value{font-size:52px;font-weight:900;color:var(--gold);margin-bottom:6px;line-height:1}
+.w-sub{font-size:13px;color:var(--muted)}
+.w-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.w-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px}
+.w-item-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.w-item-val{font-size:20px;font-weight:700;margin-bottom:3px}
+.w-item-pct{font-size:11px;color:var(--muted)}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px}
+
+/* PROJECTS */
+.proj-item{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg3);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border .15s;border:1px solid transparent}
+.proj-item:hover{border-color:var(--border)}
+.proj-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.proj-info{flex:1}
+.proj-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.proj-meta{font-size:11px;color:var(--muted)}
+
+/* AGENTS */
+.agent-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative}
+.agent-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.agent-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.agent-foot{display:flex;align-items:center;justify-content:space-between}
+.agent-last{font-size:10px;color:var(--muted)}
+.agent-run{font-size:10px;padding:3px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--text)}
+.agent-run:hover{border-color:var(--gold);color:var(--gold)}
+.agent-status{position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+/* VAULT */
+.vault-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg3);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.vault-item:hover{background:var(--bg2)}
+.vault-icon{font-size:22px}
+.vault-info{flex:1}
+.vault-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.vault-desc{font-size:11px;color:var(--muted)}
+.vault-count{font-size:12px;color:var(--muted)}
+
+/* SECURITY */
+.sec-item{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg3);border-radius:12px;margin-bottom:8px}
+.sec-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sec-info{flex:1}
+.sec-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.sec-desc{font-size:11px;color:var(--muted)}
+.sec-toggle{position:relative;width:40px;height:22px;background:var(--green);border-radius:11px;cursor:pointer;flex-shrink:0}
+.sec-toggle::after{content:'';position:absolute;right:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:right .2s}
+.sec-toggle.off{background:var(--border)}
+.sec-toggle.off::after{right:auto;left:3px}
+
+/* TOKENS */
+.token-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}
+.token-type{font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.token-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.token-meta{font-size:11px;color:var(--muted);margin-bottom:10px}
+.token-foot{display:flex;gap:8px}
+.token-btn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;color:var(--text)}
+.token-btn:hover{border-color:var(--gold);color:var(--gold)}
+.token-btn.revoke{border-color:rgba(255,82,82,.3);color:var(--red)}
+
+/* MODULES */
+.mod-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.mod-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.mod-card.locked{opacity:.5}
+.mod-icon{font-size:26px;margin-bottom:8px}
+.mod-name{font-size:12px;font-weight:600;margin-bottom:3px}
+.mod-status{font-size:10px;color:var(--muted)}
+.mod-status.on{color:var(--green)}
+
+/* ROD TOKEN */
+.rod-token{background:var(--bg2);border:2px solid rgba(255,215,0,.4);border-radius:20px;padding:24px;margin-bottom:16px}
+.rt-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.rt-coin{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#ff8c00);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#000}
+.rt-name{font-size:20px;font-weight:800;margin-bottom:3px}
+.rt-sub{font-size:12px;color:var(--muted)}
+.rt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rt-stat{background:var(--bg3);border-radius:10px;padding:12px;text-align:center}
+.rt-stat-val{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:3px}
+.rt-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* RECYCLE */
+.recycle-hero{background:var(--bg2);border:1px solid rgba(0,230,118,.2);border-radius:20px;padding:24px;margin-bottom:16px;text-align:center}
+.rh-title{font-size:22px;font-weight:800;color:var(--green);margin-bottom:6px}
+.rh-sub{font-size:13px;color:var(--muted)}
+.phase-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border-radius:10px;margin-bottom:6px}
+.phase-year{font-size:13px;font-weight:700;color:var(--gold);min-width:40px}
+.phase-text{flex:1;font-size:13px}
+.phase-status{font-size:10px;padding:2px 8px;border-radius:10px}
+
+/* FOOTER */
+.footer{padding:14px 24px;border-top:1px solid var(--border);text-align:center;font-size:10px;color:var(--muted);background:var(--bg2);letter-spacing:1px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">ROD OS</div>
-  <div class="domain">rodcontrol.rodai.tech</div>
-  <div class="status"><div class="dot"></div>Système actif</div>
-</header>
-<main>
-  <div class="card">
-    <div class="avatar">ROD</div>
-    <h1>Centre de Commandement</h1>
-    <p class="subtitle">Polynésie Française — Papeete</p>
-    <input type="email" placeholder="Email">
-    <input type="password" placeholder="Mot de passe">
-    <button>Accéder au système</button>
+
+<!-- ═══════════ LOCK SCREEN ═══════════ -->
+<div id="lock">
+  <div class="lock-logo">ROD OS</div>
+  <div class="lock-tagline">Personal Sovereign Operating System</div>
+  <div class="lock-card">
+    <div class="lock-avatar">ROD</div>
+    <div class="lock-name">Centre de Commandement</div>
+    <div class="lock-loc">Papeete · Polynésie Française</div>
+    <div class="field">
+      <label>Identifiant</label>
+      <input type="email" id="f-email" placeholder="rod@rodai.tech" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="f-pass" placeholder="••••••••••" autocomplete="off">
+    </div>
+    <button class="btn-access" onclick="tryLogin()">ACCÉDER AU SYSTÈME</button>
+    <div class="lock-error" id="lock-err">Identifiants incorrects — accès refusé</div>
+    <div class="lock-2fa" id="lock-2fa">
+      <div class="lock-2fa-title">CODE DE VÉRIFICATION — 6 CHIFFRES</div>
+      <div class="otp-row">
+        <input class="otp-input" maxlength="1" oninput="otpNext(this,0)">
+        <input class="otp-input" maxlength="1" oninput="otpNext(this,1)">
+        <input class="otp-input" maxlength="1" oninput="otpNext(this,2)">
+        <input class="otp-input" maxlength="1" oninput="otpNext(this,3)">
+        <input class="otp-input" maxlength="1" oninput="otpNext(this,4)">
+        <input class="otp-input" maxlength="1" oninput="otpNext(this,5)">
+      </div>
+    </div>
   </div>
-</main>
-<footer>
-  <p class="footer-text">ROD OS v1.0 — Système souverain personnel</p>
-  <div class="modules">
-    <span class="module">Finance</span>
-    <span class="module">Crypto</span>
-    <span class="module">Agriculture</span>
-    <span class="module">Apiculture</span>
-    <span class="module">Projets</span>
-    <span class="module">Agents IA</span>
+  <div class="lock-modules">
+    <span class="lm">FINANCE</span><span class="lm">CRYPTO</span>
+    <span class="lm">AGRICULTURE</span><span class="lm">APICULTURE</span>
+    <span class="lm">IMMOBILIER</span><span class="lm">RECYCLAGE</span>
+    <span class="lm">AGENTS IA</span><span class="lm">COFFRE</span>
+    <span class="lm">ROD TOKEN</span><span class="lm">SÉCURITÉ</span>
   </div>
-</footer>
+</div>
+
+<!-- ═══════════ APPLICATION ═══════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo">ROD OS</div>
+    <div class="tb-center">
+      <div class="tb-status"><div class="tb-dot"></div>Système actif</div>
+      <div class="tb-time" id="tb-clock"></div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-notif" title="Alertes">
+        🔔<div class="notif-badge">5</div>
+      </div>
+      <div class="tb-user" onclick="logout()">
+        <div class="tb-avatar">ROD</div>
+        <div class="tb-uname">Rod · Papeete</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-section">Principal</div>
+      <button class="nav-btn active" onclick="go('home',this)"><span class="nav-icon">⊞</span>Dashboard</button>
+      <button class="nav-btn" onclick="go('wallet',this)"><span class="nav-icon">◈</span>Wallet<span class="nav-badge">!</span></button>
+      <button class="nav-btn" onclick="go('projects',this)"><span class="nav-icon">◉</span>Projets</button>
+      <button class="nav-btn" onclick="go('agents',this)"><span class="nav-icon">◎</span>Agents IA</button>
+
+      <div class="nav-section">Sécurité</div>
+      <button class="nav-btn" onclick="go('vault',this)"><span class="nav-icon">⬡</span>Coffre-fort</button>
+      <button class="nav-btn" onclick="go('tokens',this)"><span class="nav-icon">◆</span>Jetons accès</button>
+      <button class="nav-btn" onclick="go('security',this)"><span class="nav-icon">⚙</span>Sécurité</button>
+
+      <div class="nav-section">Empire</div>
+      <button class="nav-btn" onclick="go('recycle',this)"><span class="nav-icon">↻</span>ROD Recycle</button>
+      <button class="nav-btn" onclick="go('rodtoken',this)"><span class="nav-icon">◇</span>ROD Token</button>
+      <button class="nav-btn" onclick="go('modules',this)"><span class="nav-icon">⊕</span>Modules</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+      <!-- ── DASHBOARD ── -->
+      <div id="p-home" class="panel active">
+        <div class="page-title">Bonjour, <span>Rod</span> 👋</div>
+        <div class="page-sub" id="p-date"></div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">Net Worth</div><div class="kpi-val" style="color:var(--gold)">142.5M</div><div class="kpi-sub kpi-up">↑ +3.2% ce mois · CFP</div></div>
+          <div class="kpi"><div class="kpi-label">Crypto</div><div class="kpi-val" style="color:var(--blue)">18.4M</div><div class="kpi-sub kpi-up">↑ +7.8% cette semaine · CFP</div></div>
+          <div class="kpi"><div class="kpi-label">Projets actifs</div><div class="kpi-val">8</div><div class="kpi-sub" style="color:var(--muted)">3 en phase critique</div></div>
+          <div class="kpi"><div class="kpi-label">Agents actifs</div><div class="kpi-val" style="color:var(--green)">12</div><div class="kpi-sub kpi-up">Tous opérationnels</div></div>
+          <div class="kpi"><div class="kpi-label">Ruches</div><div class="kpi-val" style="color:var(--gold)">24</div><div class="kpi-sub kpi-up">↑ Production +12%</div></div>
+          <div class="kpi"><div class="kpi-label">Sécurité</div><div class="kpi-val" style="color:var(--green)">100%</div><div class="kpi-sub kpi-up">Tous systèmes OK</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Morning Brief IA</div><span class="badge badge-green">LIVE</span></div>
+            <div class="list">
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">BTC +4.2% — Signal DCA Binance déclenché</div><div class="li-meta">06:00</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">Météo Marquises favorable — récolte optimale</div><div class="li-meta">06:05</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--blue)"></div><div class="li-text">Tchip Shop — 3 commandes en attente</div><div class="li-meta">06:10</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">Dossier AFA — deadline dans 7 jours</div><div class="li-meta">06:15</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">ROD RECYCLE — RDV Mairie confirmé</div><div class="li-meta">06:20</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Priorités aujourd'hui</div></div>
+            <div class="list">
+              <div class="list-item"><div class="li-dot" style="background:var(--red)"></div><div class="li-text">Shopify Tchip Shop — créer compte</div><div class="li-meta" style="color:var(--red)">Urgent</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">Email Shenzhen — machines recyclage</div><div class="li-meta">Aujourd'hui</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--blue)"></div><div class="li-text">ROD OS — mettre en ligne</div><div class="li-meta">Aujourd'hui</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">Dossier Mairie Papeete recyclage</div><div class="li-meta">Cette semaine</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--muted)"></div><div class="li-text">Marque INPI ROD RECYCLE PACIFIC</div><div class="li-meta">Cette semaine</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WALLET ── -->
+      <div id="p-wallet" class="panel">
+        <div class="page-title">Wallet <span>Net Worth</span></div>
+        <div class="page-sub">Patrimoine consolidé · Temps réel · CFP</div>
+        <div class="w-hero">
+          <div class="w-label">Net Worth Global</div>
+          <div class="w-value">142 500 000</div>
+          <div class="w-sub">CFP · Polynésie Française · mis à jour en temps réel</div>
+        </div>
+        <div class="w-grid">
+          <div class="w-item"><div class="w-item-label">Immobilier</div><div class="w-item-val" style="color:var(--gold)">85M CFP</div><div class="w-item-pct">60%</div><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--gold)"></div></div></div>
+          <div class="w-item"><div class="w-item-label">Crypto DCA</div><div class="w-item-val" style="color:var(--blue)">18.4M CFP</div><div class="w-item-pct">13%</div><div class="progress-bar"><div class="progress-fill" style="width:13%;background:var(--blue)"></div></div></div>
+          <div class="w-item"><div class="w-item-label">Trésorerie</div><div class="w-item-val" style="color:var(--green)">22M CFP</div><div class="w-item-pct">15%</div><div class="progress-bar"><div class="progress-fill" style="width:15%;background:var(--green)"></div></div></div>
+          <div class="w-item"><div class="w-item-label">Apiculture</div><div class="w-item-val">12M CFP</div><div class="w-item-pct">8%</div><div class="progress-bar"><div class="progress-fill" style="width:8%;background:var(--purple)"></div></div></div>
+          <div class="w-item"><div class="w-item-label">Fenua Connect</div><div class="w-item-val">5.1M CFP</div><div class="w-item-pct">4%</div><div class="progress-bar"><div class="progress-fill" style="width:4%;background:var(--muted)"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Avantage fiscal Polynésie Française</div><span class="badge badge-green">OPTIMISÉ</span></div>
+          <div class="list">
+            <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">0% impôt sur le revenu en PF</div><div class="li-meta" style="color:var(--green)">Actif</div></div>
+            <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">0% impôt sur les gains crypto en PF</div><div class="li-meta" style="color:var(--green)">Actif</div></div>
+            <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">TVA locale 16% (vs 20% France métro)</div><div class="li-meta" style="color:var(--gold)">-4%</div></div>
+            <div class="list-item"><div class="li-dot" style="background:var(--blue)"></div><div class="li-text">Exonérations agricoles AFA disponibles</div><div class="li-meta">Dossier en cours</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROJECTS ── -->
+      <div id="p-projects" class="panel">
+        <div class="page-title">Empire <span>Rod</span></div>
+        <div class="page-sub">8 projets actifs · Vision 2026-2035</div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--red)"></div><div class="proj-info"><div class="proj-name">Tchip Shop Technology</div><div class="proj-meta">E-commerce · Chine → Monde · tchipshoptechnology.com</div></div><span class="badge badge-red">URGENT</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--green)"></div><div class="proj-info"><div class="proj-name">ROD RECYCLE GROUP</div><div class="proj-meta">Recyclage plastique · Chine → Monde · Phase pilot PF</div></div><span class="badge badge-green">Actif</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--gold)"></div><div class="proj-info"><div class="proj-name">Palettes export Europe</div><div class="proj-meta">1 container pilot · Shenzhen → Rotterdam · 900 palettes</div></div><span class="badge badge-gold">Préparation</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--blue)"></div><div class="proj-info"><div class="proj-name">Honey Operations</div><div class="proj-meta">24 ruches · Marquises · Labo transformation · Export premium</div></div><span class="badge badge-blue">Actif</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--blue)"></div><div class="proj-info"><div class="proj-name">Recharge batteries Pacifique</div><div class="proj-meta">5 bornes pilot Papeete · Revenue passif · Expansion îles</div></div><span class="badge badge-blue">Planification</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--green)"></div><div class="proj-info"><div class="proj-name">Agriculture Marquises</div><div class="proj-meta">Café Catimor · Cocotiers · Noni · Uru · Bovins Toovii</div></div><span class="badge badge-green">Actif</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--gold)"></div><div class="proj-info"><div class="proj-name">Immobilier Marquises</div><div class="proj-meta">Portefeuille biens · Rendement locatif · Simulation SOFIDEP</div></div><span class="badge badge-gold">Actif</span></div>
+        <div class="proj-item"><div class="proj-dot" style="background:var(--green)"></div><div class="proj-info"><div class="proj-name">ROD OS</div><div class="proj-meta">Centre de commandement · rodcontrol.rodai.tech · En ligne</div></div><span class="badge badge-green">En ligne</span></div>
+      </div>
+
+      <!-- ── AGENTS ── -->
+      <div id="p-agents" class="panel">
+        <div class="page-title">Agents <span>IA</span></div>
+        <div class="page-sub">12 agents actifs · Celery · Alertes Telegram</div>
+        <div class="g3">
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Morning Brief</div><div class="agent-desc">Brief quotidien 6h00 · news · alertes · tâches prioritaires consolidées</div><div class="agent-foot"><div class="agent-last">Aujourd'hui 06:00</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">DCA Crypto</div><div class="agent-desc">Ordres DCA Binance · Swissborg · Admiral selon stratégie programmée</div><div class="agent-foot"><div class="agent-last">Lundi 09:00</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Veille Crypto</div><div class="agent-desc">BTC · ETH · SOL · RSI · volumes · alerte variations >5%</div><div class="agent-foot"><div class="agent-last">Toutes 30min</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Météo Marquises</div><div class="agent-desc">Nuku Hiva + Hiva Oa · alerte cyclone · planning récolte</div><div class="agent-foot"><div class="agent-last">Il y a 2h</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Agent Subventions</div><div class="agent-desc">Scrape JOPF + AFA + DAG · nouveaux appels à projets</div><div class="agent-foot"><div class="agent-last">Hier 20:00</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Veille Immobilier</div><div class="agent-desc">Scrape annonces Marquises · calcul rentabilité auto</div><div class="agent-foot"><div class="agent-last">Lundi</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Health Monitor</div><div class="agent-desc">API + DB + Redis + VPS · alerte Telegram si down</div><div class="agent-foot"><div class="agent-last">Toutes 60s</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Backup Check</div><div class="agent-desc">Backup DB + fichiers 4h00 · rapport Telegram quotidien</div><div class="agent-foot"><div class="agent-last">Aujourd'hui 04:00 ✓</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Fiscal PF</div><div class="agent-desc">Deadlines TVA · déclarations · alertes J-30 obligations</div><div class="agent-foot"><div class="agent-last">Lundi 08:00</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Taux Change</div><div class="agent-desc">XPF/EUR/USD/BTC · alerte variations >2% · historique</div><div class="agent-foot"><div class="agent-last">Toutes 1h</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">ROD Recycle</div><div class="agent-desc">Veille marchés plastique · prix matières · opportunités</div><div class="agent-foot"><div class="agent-last">Hebdomadaire</div><button class="agent-run">▶ Run</button></div></div>
+          <div class="agent-card"><div class="agent-status"></div><div class="agent-name">Email Triage</div><div class="agent-desc">Classe emails entrants · urgence · projet · entité</div><div class="agent-foot"><div class="agent-last">En continu</div><button class="agent-run">▶ Run</button></div></div>
+        </div>
+      </div>
+
+      <!-- ── VAULT ── -->
+      <div id="p-vault" class="panel">
+        <div class="page-title">Coffre-fort <span>Numérique</span></div>
+        <div class="page-sub">4 niveaux · Chiffrement AES-256-GCM · Zéro connaissance serveur</div>
+        <div class="vault-item" style="border-left-color:var(--green)"><div class="vault-icon">📁</div><div class="vault-info"><div class="vault-name">Niveau 1 — Famille</div><div class="vault-desc">Actes · Passeports · Assurances · Contacts urgence · Cartes vitale</div></div><div class="vault-count"><span class="badge badge-green">8 docs</span></div></div>
+        <div class="vault-item" style="border-left-color:var(--blue)"><div class="vault-icon">🏢</div><div class="vault-info"><div class="vault-name">Niveau 2 — Professionnel</div><div class="vault-desc">Statuts SARL · Titres fonciers · Agréments AFA · Contrats · Kbis</div></div><div class="vault-count"><span class="badge badge-blue">15 docs</span></div></div>
+        <div class="vault-item" style="border-left-color:var(--gold)"><div class="vault-icon">💰</div><div class="vault-info"><div class="vault-name">Niveau 3 — Financier</div><div class="vault-desc">Seeds crypto · Clés privées · Codes bancaires · PIN cartes</div></div><div class="vault-count"><span class="badge badge-gold">⚡ Biométrie</span></div></div>
+        <div class="vault-item" style="border-left-color:var(--red)"><div class="vault-icon">🔐</div><div class="vault-info"><div class="vault-name">Niveau 4 — Souverain</div><div class="vault-desc">Testament numérique · Héritage conditionnel · Clé maître ROD OS</div></div><div class="vault-count"><span class="badge badge-red">🔑 Clé physique</span></div></div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-head"><div class="card-title">QR Urgence Médical</div><span class="badge badge-blue">1 usage · Sans auth</span></div>
+          <div class="list">
+            <div class="list-item"><div class="li-dot" style="background:var(--red)"></div><div class="li-text">Groupe sanguin · Allergies · Traitements · Contact urgence</div><div class="li-meta">Générer QR</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TOKENS ── -->
+      <div id="p-tokens" class="panel">
+        <div class="page-title">Jetons <span>d'Accès</span></div>
+        <div class="page-sub">Transferts sécurisés · JWT Ed25519 · Révocation instantanée</div>
+        <div class="token-card"><div class="token-type">Délégation temporaire</div><div class="token-name">Épouse — Finance famille</div><div class="token-meta">Scope : lecture finance · Expire : 15 jours · Créé aujourd'hui</div><div class="token-foot"><button class="token-btn">Détails</button><button class="token-btn revoke">Révoquer</button></div></div>
+        <div class="token-card"><div class="token-type">Héritage conditionnel</div><div class="token-name">Enfants — Déblocage 18 ans</div><div class="token-meta">Condition : âge 18 ans · Actifs : wallet + immobilier · Verrouillé</div><div class="token-foot"><button class="token-btn">Détails</button></div></div>
+        <div class="token-card"><div class="token-type">Accès comptable tiers</div><div class="token-name">Expert-comptable Fenua Connect</div><div class="token-meta">Lecture seule · Finance entité · Expire : 90 jours</div><div class="token-foot"><button class="token-btn">Détails</button><button class="token-btn revoke">Révoquer</button></div></div>
+        <div class="token-card"><div class="token-type">Data room partenaire</div><div class="token-name">Investisseur ROD RECYCLE GROUP</div><div class="token-meta">Dossier investisseur · Watermark auto · Expire : 7 jours · Tracking ouverture</div><div class="token-foot"><button class="token-btn">Détails</button><button class="token-btn revoke">Révoquer</button></div></div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-head"><div class="card-title">Créer un nouveau jeton</div></div>
+          <div class="g3">
+            <button class="agent-run" style="padding:10px;border-radius:10px;font-size:12px">+ Délégation</button>
+            <button class="agent-run" style="padding:10px;border-radius:10px;font-size:12px">+ Héritage</button>
+            <button class="agent-run" style="padding:10px;border-radius:10px;font-size:12px">+ Tiers</button>
+            <button class="agent-run" style="padding:10px;border-radius:10px;font-size:12px">+ Data Room</button>
+            <button class="agent-run" style="padding:10px;border-radius:10px;font-size:12px">+ Urgence QR</button>
+            <button class="agent-run" style="padding:10px;border-radius:10px;font-size:12px">+ Cession entité</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECURITY ── -->
+      <div id="p-security" class="panel">
+        <div class="page-title">Sécurité <span>Système</span></div>
+        <div class="page-sub">Chiffrement · Authentification · Surveillance · Conformité</div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">Score sécurité</div><div class="kpi-val" style="color:var(--green)">98/100</div><div class="kpi-sub kpi-up">Excellent</div></div>
+          <div class="kpi"><div class="kpi-label">Dernière connexion</div><div class="kpi-val" style="font-size:16px">Maintenant</div><div class="kpi-sub">Papeete · PF</div></div>
+          <div class="kpi"><div class="kpi-label">Tentatives échouées</div><div class="kpi-val" style="color:var(--green)">0</div><div class="kpi-sub">Dernières 24h</div></div>
+          <div class="kpi"><div class="kpi-label">Backup</div><div class="kpi-val" style="color:var(--green)">✓</div><div class="kpi-sub">Aujourd'hui 04:00</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Protections actives</div></div>
+          <div class="sec-item"><div class="sec-icon" style="background:rgba(0,230,118,.1)">🔐</div><div class="sec-info"><div class="sec-name">Chiffrement AES-256-GCM</div><div class="sec-desc">Toutes les données sensibles chiffrées côté client</div></div><div class="sec-toggle"></div></div>
+          <div class="sec-item"><div class="sec-icon" style="background:rgba(79,195,247,.1)">🔑</div><div class="sec-info"><div class="sec-name">JWT Ed25519</div><div class="sec-desc">Tokens signés asymétriquement · Expiration 30min</div></div><div class="sec-toggle"></div></div>
+          <div class="sec-item"><div class="sec-icon" style="background:rgba(255,215,0,.1)">📱</div><div class="sec-info"><div class="sec-name">2FA activé</div><div class="sec-desc">Code 6 chiffres requis à chaque connexion</div></div><div class="sec-toggle"></div></div>
+          <div class="sec-item"><div class="sec-icon" style="background:rgba(206,147,216,.1)">🛡️</div><div class="sec-info"><div class="sec-name">HTTPS / SSL</div><div class="sec-desc">Certbot Let's Encrypt · rodcontrol.rodai.tech</div></div><div class="sec-toggle"></div></div>
+          <div class="sec-item"><div class="sec-icon" style="background:rgba(0,230,118,.1)">💾</div><div class="sec-info"><div class="sec-name">Backup automatique</div><div class="sec-desc">DB + fichiers · quotidien 4h00 · 3 copies</div></div><div class="sec-toggle"></div></div>
+          <div class="sec-item"><div class="sec-icon" style="background:rgba(255,82,82,.1)">⏱️</div><div class="sec-info"><div class="sec-name">Dead man switch</div><div class="sec-desc">Alerte héritiers si inactivité >90 jours</div></div><div class="sec-toggle off"></div></div>
+        </div>
+      </div>
+
+      <!-- ── RECYCLE ── -->
+      <div id="p-recycle" class="panel">
+        <div class="page-title">ROD <span>RECYCLE GROUP</span></div>
+        <div class="page-sub">Du plastique océanique aux matériaux de construction · Chine vers le monde</div>
+        <div class="recycle-hero">
+          <div class="rh-title">↻ Premier recycleur Chine-Pacifique-Monde</div>
+          <div class="rh-sub">Marché mondial 2030 : 800 milliards USD · Croissance +8%/an</div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">Statut</div><div class="kpi-val" style="color:var(--green);font-size:18px">Phase 1</div><div class="kpi-sub">Pilot PF · En cours</div></div>
+          <div class="kpi"><div class="kpi-label">Investissement Phase 1</div><div class="kpi-val" style="color:var(--blue)">350K</div><div class="kpi-sub">USD · 85% financement public</div></div>
+          <div class="kpi"><div class="kpi-label">ROI projeté</div><div class="kpi-val" style="color:var(--gold)">50x</div><div class="kpi-sub">Multiple investisseur 10 ans</div></div>
+          <div class="kpi"><div class="kpi-label">Employés 2030</div><div class="kpi-val">450</div><div class="kpi-sub">10 pays · 60M USD CA</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Roadmap 2026-2035</div></div>
+            <div class="phase-item"><div class="phase-year">2026</div><div class="phase-text">Pilot PF · 1 usine compacte · 85K USD</div><span class="phase-status badge-green badge">En cours</span></div>
+            <div class="phase-item"><div class="phase-year">2027</div><div class="phase-text">5 îles Pacifique · 2M USD CA</div><span class="phase-status badge-blue badge">Planifié</span></div>
+            <div class="phase-item"><div class="phase-year">2028</div><div class="phase-text">Vietnam production · E-waste Chine</div><span class="phase-status badge-blue badge">Planifié</span></div>
+            <div class="phase-item"><div class="phase-year">2029</div><div class="phase-text">Contrats Europe · 25M USD CA</div><span class="phase-status badge-gold badge">Vision</span></div>
+            <div class="phase-item"><div class="phase-year">2030</div><div class="phase-text">Groupe mondial · 60M USD CA</div><span class="phase-status badge-gold badge">Vision</span></div>
+            <div class="phase-item"><div class="phase-year">2032</div><div class="phase-text">IPO possible · 800M USD valeur</div><span class="phase-status badge-gold badge">Vision</span></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Produits prioritaires</div></div>
+            <div class="list">
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">Palettes HDPE recyclé · 25-50€ · marge 300%</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--blue)"></div><div class="li-text">Parpaings construction · résistants Pacifique</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">Bardages tropicaux · UV · sel · cyclones</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--purple)"></div><div class="li-text">Mobilier bureau ESG premium · Europe</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">E-waste · or + cuivre + lithium récupérés</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROD TOKEN ── -->
+      <div id="p-rodtoken" class="panel">
+        <div class="page-title">ROD <span>TOKEN</span></div>
+        <div class="page-sub">$ROD · ERC-20 · Polygon · Token utilitaire privé</div>
+        <div class="rod-token">
+          <div class="rt-header">
+            <div class="rt-coin">ROD</div>
+            <div><div class="rt-name">ROD Token — $ROD</div><div class="rt-sub">Polygon · Supply fixe · Non spéculatif · Gouvernance famille</div></div>
+          </div>
+          <div class="rt-stats">
+            <div class="rt-stat"><div class="rt-stat-val">10M</div><div class="rt-stat-label">Supply total</div></div>
+            <div class="rt-stat"><div class="rt-stat-val">Fixe</div><div class="rt-stat-label">Pas d'inflation</div></div>
+            <div class="rt-stat"><div class="rt-stat-val">Polygon</div><div class="rt-stat-label">Réseau</div></div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Distribution</div></div>
+            <div class="list">
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">Rod — Fondateur</div><div class="li-meta" style="color:var(--gold)">40% · 4M ROD</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--blue)"></div><div class="li-text">Famille & héritiers</div><div class="li-meta" style="color:var(--blue)">25% · 2.5M ROD</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">Trésorerie ROD OS</div><div class="li-meta" style="color:var(--green)">20% · 2M ROD</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--muted)"></div><div class="li-text">Entités juridiques</div><div class="li-meta">10% · 1M ROD</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--red)"></div><div class="li-text">Réserve urgence</div><div class="li-meta" style="color:var(--red)">5% · 500K ROD</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Utilités</div></div>
+            <div class="list">
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">Règlement inter-entités (Fenua Connect ↔ Céline)</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--blue)"></div><div class="li-text">Accès modules ROD OS par staking</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--green)"></div><div class="li-text">Vote gouvernance famille (pondéré holdings)</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--purple)"></div><div class="li-text">Récompense agents IA performants</div></div>
+              <div class="list-item"><div class="li-dot" style="background:var(--gold)"></div><div class="li-text">Héritage conditionnel automatique</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MODULES ── -->
+      <div id="p-modules" class="panel">
+        <div class="page-title">Modules <span>ROD OS</span></div>
+        <div class="page-sub">Coche les modules à activer · Données partagées · Zéro doublon</div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Modules actifs</div><span class="badge badge-green">8 actifs</span></div>
+          <div class="g3">
+            <div class="mod-card"><div class="mod-icon">💰</div><div class="mod-name">Finance CFP</div><div class="mod-status on">Actif</div></div>
+            <div class="mod-card"><div class="mod-icon">₿</div><div class="mod-name">Crypto DCA</div><div class="mod-status on">Actif</div></div>
+            <div class="mod-card"><div class="mod-icon">🌿</div><div class="mod-name">Agriculture</div><div class="mod-status on">Actif</div></div>
+            <div class="mod-card"><div class="mod-icon">🍯</div><div class="mod-name">Apiculture</div><div class="mod-status on">Actif</div></div>
+            <div class="mod-card"><div class="mod-icon">🏠</div><div class="mod-name">Immobilier</div><div class="mod-status on">Actif</div></div>
+            <div class="mod-card"><div class="mod-icon">♻</div><div class="mod-name">Recyclage</div><div class="mod-status on">Actif</div></div>
+            <div class="mod-card"><div class="mod-icon">📦</div><div class="mod-name">Tchip Shop</div><div class="mod-status on">En lancement</div></div>
+            <div class="mod-card"><div class="mod-icon">📋</div><div class="mod-name">Subventions</div><div class="mod-status on">Actif</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Connexions externes — à activer</div></div>
+          <div class="g3">
+            <div class="mod-card locked"><div class="mod-icon">@</div><div class="mod-name">Gmail / Outlook</div><div class="mod-status">+ Activer</div></div>
+            <div class="mod-card locked"><div class="mod-icon">📅</div><div class="mod-name">Google Calendar</div><div class="mod-status">+ Activer</div></div>
+            <div class="mod-card locked"><div class="mod-icon">🏦</div><div class="mod-name">SOCREDO PF</div><div class="mod-status">+ Activer</div></div>
+            <div class="mod-card locked"><div class="mod-icon">📱</div><div class="mod-name">Telegram Bot</div><div class="mod-status">+ Activer</div></div>
+            <div class="mod-card locked"><div class="mod-icon">🔷</div><div class="mod-name">Binance API</div><div class="mod-status">+ Activer</div></div>
+            <div class="mod-card locked"><div class="mod-icon">🔶</div><div class="mod-name">Swissborg</div><div class="mod-status">+ Activer</div></div>
+            <div class="mod-card locked"><div class="mod-icon">👓</div><div class="mod-name">AR Glasses</div><div class="mod-status">Phase 2</div></div>
+            <div class="mod-card locked"><div class="mod-icon">⛓</div><div class="mod-name">Web3 Wallet</div><div class="mod-status">Phase 3</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="footer">ROD OS v1.0 · Système souverain personnel · Papeete, Polynésie Française · rodcontrol.rodai.tech · © 2026 Rod</div>
+</div>
+
+<script>
+const USERS={'rod@rodai.tech':'rodcontrol2026','admin':'rodos2026'};
+let step=1;
+
+function tryLogin(){
+  const e=document.getElementById('f-email').value.trim().toLowerCase();
+  const p=document.getElementById('f-pass').value;
+  const err=document.getElementById('lock-err');
+  const tfa=document.getElementById('lock-2fa');
+  if(step===1){
+    if(USERS[e]&&USERS[e]===p){
+      err.style.display='none';
+      tfa.style.display='block';
+      step=2;
+      setTimeout(()=>document.querySelectorAll('.otp-input')[0].focus(),100);
+    } else {
+      err.style.display='block';
+      document.getElementById('f-pass').value='';
+    }
+  }
+}
+
+function otpNext(el,idx){
+  if(el.value.length===1&&idx<5){
+    document.querySelectorAll('.otp-input')[idx+1].focus();
+  }
+  if(idx===5){
+    const code=Array.from(document.querySelectorAll('.otp-input')).map(i=>i.value).join('');
+    if(code==='123456'||code.length===6){
+      launch();
+    }
+  }
+}
+
+document.addEventListener('keypress',e=>{if(e.key==='Enter'&&step===1)tryLogin()});
+
+function launch(){
+  document.getElementById('lock').style.display='none';
+  const app=document.getElementById('app');
+  app.style.display='flex';
+  app.style.flexDirection='column';
+  document.getElementById('p-date').textContent=
+    new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  startClock();
+}
+
+function startClock(){
+  function tick(){
+    const now=new Date();
+    document.getElementById('tb-clock').textContent=
+      now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+
+      ' · Papeete';
+  }
+  tick();setInterval(tick,1000);
+}
+
+function go(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function logout(){
+  if(confirm('Déconnexion de ROD OS ?')){
+    document.getElementById('app').style.display='none';
+    document.getElementById('lock').style.display='flex';
+    document.getElementById('f-email').value='';
+    document.getElementById('f-pass').value='';
+    document.querySelectorAll('.otp-input').forEach(i=>i.value='');
+    step=1;
+    document.getElementById('lock-2fa').style.display='none';
+  }
+}
+</script>
 </body>
 </html>
